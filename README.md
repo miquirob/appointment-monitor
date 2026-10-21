@@ -8,7 +8,7 @@ Monitor genérico de disponibilidad de citas, basado en Playwright y GitHub Acti
 - Workflow programado cada hora (puede sufrir retrasos de GitHub Actions).
 - Utiliza Google Chrome preinstalado en Ubuntu y caché de dependencias Node.js; evita descargar Chromium en cada revisión.
 - Si faltan secretos, la ejecución termina sin consultar ninguna web.
-- **Alertas desactivadas por seguridad** hasta confirmar una ejecución real contra el portal.
+- **Alertas de disponibilidad habilitadas** para las ejecuciones programadas, condicionadas a cupos detectados con fecha y hora verificables y a los secretos de Telegram correctamente configurados. La detección de cupos reales aún requiere validación con un ejemplo auténtico.
 - La ejecución manual puede enviar una captura privada por Telegram si se configuran las credenciales.
 - No se realizan reservas, logins ni bypass de CAPTCHA.
 
@@ -32,7 +32,7 @@ Nunca publiques sus valores en commits, Issues, logs, capturas de pantallas púb
 2. En **Actions → Appointment Availability Check → Run workflow** ejecuta una comprobación manual.
 3. Recibirás un resultado resumido y, si se configuró Telegram y la página se pudo abrir, una captura privada.
 4. Valida que el nombre del profesional aparezca correctamente y que las horas se interpreten bien. Si el portal exige RUT, sesión, CAPTCHA o cambia su estructura, es posible que el resultado sea `unknown`.
-5. **No actives las alertas hasta validar la captura.** Para activarlas, cambia `ALERTS_ENABLED: 'false'` por `'true'` en `.github/workflows/monitor.yml`.
+5. El workflow tiene `ALERTS_ENABLED: 'true'`. Solo envía alertas al detectar una hora con fecha verificable y si `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` están configurados. El modo piloto manual envía un diagnóstico separado; no reserva nada.
 
 La automatización revisa las fechas de inicio **hoy, +7 y +14 días**. Esto no implica cobertura de todas las fechas futuras: depende del calendario que muestre el portal. Se deberá adaptar a su estructura real si fuera necesario.
 
