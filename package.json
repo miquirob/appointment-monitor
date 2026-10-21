@@ -1,0 +1,13 @@
+{
+  "name": "appointment-monitor",
+  "private": true,
+  "type": "module",
+  "version": "0.2.0",
+  "description": "Generic appointment availability monitor",
+  "scripts": {
+    "monitor": "node src/monitor.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {"node": ">=22"},
+  "dependencies": {"playwright": "1.64.0"}
+}
