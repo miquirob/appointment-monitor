@@ -56,7 +56,7 @@ async function takeSnapshot(page){
 let browser,screenshot=null;
 const records=[];
 try{
-  browser=await chromium.launch({headless:true});
+  browser=await chromium.launch({headless:true,...(process.env.BROWSER_CHANNEL?{channel:process.env.BROWSER_CHANNEL}:{})});
   const context=await browser.newContext({locale:'es-CL',timezoneId:'America/Santiago',viewport:{width:1366,height:900},acceptDownloads:false});
   for(const offset of (offsets.length?offsets:[0])){
     const scanDay=yyyyMMdd(offset);
