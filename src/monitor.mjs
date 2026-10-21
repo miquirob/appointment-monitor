@@ -23,13 +23,13 @@ const yyyyMMdd=offset=>{
 const dateForUrl=iso=>`${iso.slice(8,10)}/${iso.slice(5,7)}/${iso.slice(0,4)}`;
 const targetUrl=iso=>{const u=new URL(baseUrl);u.searchParams.set(dateParam,dateForUrl(iso));return u.toString();};
 // Normalize pasted tokens (GitHub Secrets values are never printed).
-const chatToken=String(process.env.TELEGRAM_BOT_TOKEN||'').trim().replace(/^bot(?=\\d+:)/i,'');
+const chatToken=String(process.env.TELEGRAM_BOT_TOKEN||'').trim().replace(/^bot(?=\d+:)/i,'');
 const chatId=String(process.env.TELEGRAM_CHAT_ID||'').trim();
 const telegramReady=Boolean(chatToken&&chatId);
 let botValidated=false;
 async function validateTelegramBot(){
   if(botValidated)return;
-  if(!/^\\d+:\\S+$/.test(chatToken))throw Error('Telegram bot token format invalid. Check TELEGRAM_BOT_TOKEN (numeric-id:secret), without URL.');
+  if(!/^\d+:\S+$/.test(chatToken))throw Error('Telegram bot token format invalid. Check TELEGRAM_BOT_TOKEN (numeric-id:secret), without URL.');
   const res=await fetch(`https://api.telegram.org/bot${chatToken}/getMe`,{signal:AbortSignal.timeout(12000)});
   if(!res.ok)throw Error(`Telegram bot authentication failed (getMe HTTP ${res.status}). Check or regenerate TELEGRAM_BOT_TOKEN.`);
   const data=await res.json();
