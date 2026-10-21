@@ -60,7 +60,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           BROWSER_CHANNEL: chrome
-          ALERTS_ENABLED: 'false'
+          ALERTS_ENABLED: 'true'
           PILOT_MODE: ${{ github.event_name == 'workflow_dispatch' }}
           SCAN_DAY_OFFSETS: '0,7,14'
       # No public screenshot or artifact uploads.
