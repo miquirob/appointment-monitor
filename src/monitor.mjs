@@ -41,7 +41,18 @@ async function telegram(method,payload){
   if(!telegramReady)return false;
   await validateTelegramBot();
   const res=await fetch(`https://api.telegram.org/bot${chatToken}/${method}`,{method:'POST',body:payload,signal:AbortSignal.timeout(20000)});
-  if(!res.ok)throw Error(`Telegram ${method} HTTP ${res.status}${res.status===400||res.status===403?' (check TELEGRAM_CHAT_ID and start a private chat with the bot)':''}`);
+  if(!res.ok){
+    const raw=await res.json().catch(()=>({}));
+    const d=String(raw.description||'');
+    const hint=/chat not found/i.test(d)
+      ? 'chat not found: verify TELEGRAM_CHAT_ID and press Start in your own bot'
+      : /bot was blocked/i.test(d)
+        ? 'bot is blocked: unblock the bot in Telegram'
+        : /chat_id|chat id/i.test(d)
+          ? 'invalid chat identifier: use only the numeric Telegram user ID'
+          : 'check TELEGRAM_CHAT_ID and that you started a private conversation with the bot';
+    throw Error(`Telegram ${method} HTTP ${res.status} (${hint})`);
+  }
   return true;
 }
 async function sendText(message){
