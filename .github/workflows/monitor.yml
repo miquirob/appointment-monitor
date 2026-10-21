@@ -1,0 +1,56 @@
+name: Appointment Availability Check
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: appointment-check
+  cancel-in-progress: false
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check configuration
+        id: config
+        env:
+          BOOKING_URL: ${{ secrets.BOOKING_URL }}
+          EXPECTED_PRACTITIONER_NAME: ${{ secrets.EXPECTED_PRACTITIONER_NAME }}
+          DATE_QUERY_PARAM: ${{ secrets.DATE_QUERY_PARAM }}
+        run: |
+          if [[ -n "$BOOKING_URL" && -n "$EXPECTED_PRACTITIONER_NAME" && -n "$DATE_QUERY_PARAM" ]]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Monitor not configured: set the three booking secrets to run."
+          fi
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.ready == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.config.outputs.ready == 'true'
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        if: steps.config.outputs.ready == 'true'
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        if: steps.config.outputs.ready == 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Unit tests
+        if: steps.config.outputs.ready == 'true'
+        run: npm test
+      - name: Check appointment availability
+        if: steps.config.outputs.ready == 'true'
+        run: npm run monitor
+        env:
+          BOOKING_URL: ${{ secrets.BOOKING_URL }}
+          EXPECTED_PRACTITIONER_NAME: ${{ secrets.EXPECTED_PRACTITIONER_NAME }}
+          DATE_QUERY_PARAM: ${{ secrets.DATE_QUERY_PARAM }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ALERTS_ENABLED: 'false'
+          PILOT_MODE: ${{ github.event_name == 'workflow_dispatch' }}
+          SCAN_DAY_OFFSETS: '0,7,14'
+      # No public screenshot or artifact uploads.
