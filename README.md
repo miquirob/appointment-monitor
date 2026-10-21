@@ -6,6 +6,7 @@ Monitor genérico de disponibilidad de citas, basado en Playwright y GitHub Acti
 
 - Código publicado, con 10 pruebas unitarias para evitar falsos positivos.
 - Workflow programado cada hora (puede sufrir retrasos de GitHub Actions).
+- Utiliza Google Chrome preinstalado en Ubuntu y caché de dependencias Node.js; evita descargar Chromium en cada revisión.
 - Si faltan secretos, la ejecución termina sin consultar ninguna web.
 - **Alertas desactivadas por seguridad** hasta confirmar una ejecución real contra el portal.
 - La ejecución manual puede enviar una captura privada por Telegram si se configuran las credenciales.
@@ -40,6 +41,10 @@ La automatización revisa las fechas de inicio **hoy, +7 y +14 días**. Esto no 
 Este proyecto no sube screenshots ni reportes privados como artefactos de GitHub. Los logs de Actions son visibles en repositorios públicos, por lo que el código imprime únicamente estados técnicos no identificables. En modo piloto, las capturas se envían solamente a Telegram. Los secretos no protegen frente a colaboradores maliciosos con permisos de modificación del workflow; controla quién puede editarlo.
 
 En repositorios públicos, los runners estándar de GitHub Actions son gratuitos sujetos a políticas de GitHub. Los workflows programados pueden retrasarse y GitHub puede desactivarlos después de inactividad prolongada del repositorio. No se promete vigilancia en tiempo real ni una reserva asegurada.
+
+## Rendimiento del runner
+
+Los runners de GitHub Actions son temporales y se crean desde cero. El workflow ahora aprovecha **Google Chrome que ya viene instalado** y una caché de `node_modules`/npm. La primera ejecución con esta configuración creará la caché; las siguientes deberían saltarse la instalación de paquetes mientras `package.json` no cambie. El tiempo de arrancar y limpiar el runner sigue existiendo.
 
 ## Desarrollo local
 
